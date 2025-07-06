@@ -1,11 +1,11 @@
-name: CI Pipeline
+name: Deploy To AWS
 
 on: 
   pull_request:
     branches: ["devel","stage","prod"]
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps: 
@@ -25,7 +25,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Deploy to S3
-        run: aws s3 sync --delete ${{ secrets.BUCKET_NAME }}
+        run: aws s3 sync build/ ${{ secrets.BUCKET_NAME }} --delete
 
       - name: Invalidate Cloudfront Distribution
         run: aws cloudfront create-invalidation --distribution-id ${{ secrets.DISTRIBUTION_ID }} --paths "/*"
