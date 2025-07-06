@@ -1,0 +1,34 @@
+name: Validate Branching Strategy
+
+on: 
+  pull_request:
+
+jobs:
+  validate-branching-strategy:
+    runs-on: ubuntu-latest
+
+    steps: 
+      - name: Validate Branches
+        run: |
+          SOURCE=${{ github.head_ref }}
+          TARGET=${{ github.base_ref }}
+
+          echo "Source branch is: $SOURCE"
+          echo "Target branch is: $TARGET"
+
+          if [[ $TARGET == "stage" ]] && [[ $SOURCE != "devel" ]]; then
+            echo "Merges into the 'stage' branch must come from the 'devel' branch."
+            exit 1;
+          fi
+          
+          if [[ $TARGET == "prod" ]] && [[ $SOURCE != "stage" ]]; then
+            echo "Merges into the 'prod' branch must come from the 'stage' branch."
+            exit 1;
+          fi
+          
+          if [[ $TARGET == "devel" ]] && [[ $SOURCE != feature/* ]] && [[ $SOURCE != bugfix/* ]]; then
+            echo "Merges into the 'devel' branch must come from a 'feature/*' or 'bugfix/*' branch."
+            exit 1;
+          fi
+
+          echo "Validation successful"
